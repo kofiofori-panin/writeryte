@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WriteRyte AI - Proofreading Simplified</title>
+  <link rel="icon" href="https://img.icons8.com/ios-filled/30/graduation-cap.png"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <img class="h-10 w-10" src="https://img.icons8.com/ios-filled/30/graduation-cap.png" alt="Logo" />
+        <a href="index.html" class="button"><h1 class="text-2xl font-bold text-indigo-600">WriteRyte AI</h1></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="text-center py-20 px-6 bg-gradient-to-r from-indigo-100 to-purple-100">
+    <h2 class="text-4xl sm:text-5xl font-extrabold text-indigo-700 mb-4">Write Smarter, Not Harder</h2>
+    <p class="text-lg sm:text-xl text-gray-700 mb-10 max-w-3xl mx-auto">
+      Improve your writing with automated grammar and spell checking, word suggestions, paraphrasing, and more — no sign-up required.
+    </p>
+  </section>
+
+  <!-- Paste / Upload Section -->
+  <section class="max-w-5xl mx-auto py-16 px-4 sm:px-6">
+    <h3 class="text-3xl font-bold text-indigo-700 text-center mb-10">Try WriteRyte AI Now</h3>
+
+    <div class="grid grid-cols-1 gap-8">
+      <!-- Paste Text -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <label for="userText" class="block text-lg font-medium text-gray-700 mb-2">Paste Your Text:</label>
+        <textarea id="userText" rows="8" placeholder="Paste your content here..." class="w-full border border-gray-300 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"></textarea>
+      </div>
+
+      <!-- File Upload -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <label for="uploadFile" class="block text-lg font-medium text-gray-700 mb-2">Upload a File:</label>
+        <input type="file" id="uploadFile" class="block w-full text-lg text-gray-700 border border-gray-300 p-2 rounded-lg cursor-pointer" />
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button onclick="simulateAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-lg px-8 py-3 rounded-lg font-semibold shadow-md transition">
+          Analyze with AI
+        </button>
+      </div>
+
+      <!-- AI Result -->
+      <div id="aiResult" class="hidden bg-green-50 border-l-4 border-green-500 p-6 rounded-lg shadow text-gray-800 text-lg">
+        <strong class="block text-green-700 mb-2">Suggestions:</strong>
+        <ul class="list-disc ml-6 space-y-1">
+          <li>Corrected spelling in paragraph 2.</li>
+          <li>Suggested better word for "utilize" → "use".</li>
+          <li>Improved sentence flow in last sentence.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white py-6 text-center text-gray-600 text-sm mt-10">
+    &copy; 2025 WriteRyte AI. All rights reserved.
+  </footer>
+
+  <script>
+  async function simulateAI() {
+    const userInput = document.getElementById("userText").value.trim();
+    if (!userInput) {
+      alert("Please paste some text first.");
+      return;
+    }
+
+    const apiKey = "xxxxxx"; // using actual Cohere API key
+    const responseContainer = document.getElementById("aiResult");
+    responseContainer.classList.remove("hidden");
+    responseContainer.innerHTML = "<p class='text-gray-600'>Analyzing... Please wait.</p>";
+
+    try {
+      const res = await fetch("https://api.cohere.ai/v1/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "command",
+          prompt: `Review the following text for grammar, clarity, and style. Provide a list of suggestions:\n\n${userInput}`,
+          max_tokens: 300,
+          temperature: 0.6
+        }),
+      });
+
+      const data = await res.json();
+      if (data.generations && data.generations.length > 0) {
+        const reply = data.generations[0].text;
+        responseContainer.innerHTML = `
+          <strong class="block text-green-700 mb-2">AI Suggestions:</strong>
+          <div class="text-gray-800 whitespace-pre-wrap text-lg">${reply}</div>
+        `;
+      } else {
+        throw new Error("No suggestions returned by AI.");
+      }
+
+    } catch (error) {
+      console.error(error);
+      responseContainer.innerHTML = `<p class="text-red-600">Error: ${error.message}</p>`;
+    }
+  }
+</script>
+
+<!-- <script>
+  async function simulateAI() {
+    const userInput = document.getElementById("userText").value.trim();
+    const responseContainer = document.getElementById("aiResult");
+    const apiKey = "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"; // ✅ Your actual OpenAI API key here
+
+    if (!userInput) {
+      alert("Please paste some text first.");
+      return;
+    }
+
+    if (!apiKey || apiKey.startsWith("sk-") === false) {
+      alert("Missing or invalid API key.");
+      return;
+    }
+
+    // Show loading message
+    responseContainer.classList.remove("hidden");
+    responseContainer.innerHTML = `<p class='text-gray-600 text-lg'>Analyzing... Please wait.</p>`;
+
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          temperature: 0.7,
+          messages: [
+            {
+              role: "system",
+              content: "You are a writing assistant that reviews pasted text for grammar, clarity, and style improvements. Return suggestions clearly.",
+            },
+            {
+              role: "user",
+              content: userInput,
+            },
+          ],
+        }),
+      });
+
+      const data = await res.json();
+      console.log(data); // ✅ Helps identify issues in Dev Tools Console
+
+      if (res.ok && data.choices && data.choices.length > 0) {
+        const reply = data.choices[0].message.content;
+        responseContainer.innerHTML = `
+          <strong class="block text-green-700 mb-2">AI Suggestions:</strong>
+          <div class="text-gray-800 whitespace-pre-wrap text-lg">${reply}</div>
+        `;
+      } else {
+        const errMsg = data?.error?.message || "No valid response from AI.";
+        responseContainer.innerHTML = `<p class="text-red-600 text-lg">Error: ${errMsg}</p>`;
+      }
+    } catch (error) {
+      console.error("Request error:", error);
+      responseContainer.innerHTML = `<p class="text-red-600 text-lg">Something went wrong. See console for details.</p>`;
+    }
+  }
+</script>-->
+
+
+
+</body>
+</html>
